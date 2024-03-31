@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import CreateGameDialog from "../components/CreateGameDialog";
-import { toast } from "react-toastify";
 
 function Home() {
   const [gameList, setGameList] = useState([]);
@@ -13,7 +12,6 @@ function Home() {
   };
 
   useEffect(() => {
-    toast.error("hi");
     fetchGames();
   }, []);
 

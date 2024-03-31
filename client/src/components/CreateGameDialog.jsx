@@ -17,7 +17,7 @@ function CreateGameDialog({ setShowGameDialog, fetchGames }) {
     e.preventDefault();
 
     try {
-      const body = JSON.stringify({ name: gameName, p0: 1 });
+      const body = JSON.stringify({ name: gameName });
       const res = await fetch("/api/games", {
         headers: {
           "Content-Type": "application/json",
@@ -27,6 +27,7 @@ function CreateGameDialog({ setShowGameDialog, fetchGames }) {
       });
 
       if (!res.ok) {
+        console.log(res);
         throw new Error("Error Creating Game");
       }
 
