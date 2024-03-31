@@ -16,7 +16,7 @@ const setGames = asyncHandler(async (req, res) => {
   const { p0, name } = req.body;
   if (!req.body.p0 || !req.body.name) {
     res.status(400);
-    throw new error("Missing Params");
+    throw new Error("Missing Params");
   }
   const newGame = await Game.create({ p0, name });
 
