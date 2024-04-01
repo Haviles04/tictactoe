@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
 
-function CreateGameDialog({ setShowGameDialog, fetchGames }) {
+function CreateGameDialog({ setShowGameDialog, fetchGames, userId }) {
   const [gameName, setGameName] = useState("");
 
   const closeDialog = (e) => {
@@ -17,7 +17,7 @@ function CreateGameDialog({ setShowGameDialog, fetchGames }) {
     e.preventDefault();
 
     try {
-      const body = JSON.stringify({ name: gameName });
+      const body = JSON.stringify({ name: gameName, p0: userId });
       const res = await fetch("/api/games", {
         headers: {
           "Content-Type": "application/json",
