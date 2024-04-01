@@ -1,7 +1,10 @@
 import { FiLogOut } from "react-icons/fi";
 import { Link, useNavigate } from "react-router-dom";
+import { useRecoilValue } from "recoil";
+import { userState } from "../state/userState";
 
 function Navbar() {
+  const user = useRecoilValue(userState);
   const navigate = useNavigate();
 
   const handleLogout = (e) => {
@@ -16,13 +19,15 @@ function Navbar() {
         </Link>
         <ul>
           <li>
-            <button
-              onClick={handleLogout}
-              className="flex flex-row items-center rounded border border-black p-2"
-            >
-              <FiLogOut className="mr-2" />
-              Logout
-            </button>
+            {user.id && (
+              <button
+                onClick={handleLogout}
+                className="flex flex-row items-center rounded border border-black p-2"
+              >
+                <FiLogOut className="mr-2" />
+                Logout
+              </button>
+            )}
           </li>
         </ul>
       </div>

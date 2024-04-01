@@ -12,30 +12,42 @@ const getGames = asyncHandler(async (req, res) => {
 // @desc Set Games
 // @route POST /api/Games
 // @acess Private
-const setGames = asyncHandler(async (req, res) => {
+const createGame = asyncHandler(async (req, res) => {
   const { p0, name } = req.body;
+
   if (!req.body.p0 || !req.body.name) {
     res.status(400);
-    throw new Error("Missing Params");
+    throw new Error("Missing Game Name");
   }
-  const newGame = await Game.create({ p0, name });
-  req.app.get("io").emit("newGame", newGame);
 
+  const newGame = await Game.create({ p0, name });
+
+  req.app.get("io").emit("newGame", newGame);
   res.status(200).json(newGame);
 });
 
 // @desc Update Game
 // @route PUT /api/Games/id
 // @acess Private
-const updateGames = asyncHandler(async (req, res) => {
-  const foundGame = await Game.findById(req.params.id);
-  if (!foundGame) {
-    res.status(400);
-    throw new Error("Game not found");
-  }
+const joinGame = asyncHandler(async (req, res, next) => {
+  try {
+    const foundGame = await Game.findById(req.params.id);
+    if (!foundGame) {
+      res.status(400);
+      throw new Error("Game not found");
+    }
 
-  const updatedGame = await Game.findByIdAndUpdate(req.params.id, req.body);
-  res.status(200).json(updatedGame);
+    if (foundGame.p1) {
+      res.status(400);
+      throw new Error("Game already full");
+    }
+
+    req.app.get("io").emit("gameJoined");
+    const updatedGame = await Game.findByIdAndUpdate(req.params.id, req.body);
+    res.status(200).json(updatedGame);
+  } catch (err) {
+    next(err);
+  }
 });
 
 // @desc Delete Game
@@ -43,6 +55,7 @@ const updateGames = asyncHandler(async (req, res) => {
 // @acess Private
 const deleteGames = asyncHandler(async (req, res) => {
   const foundGame = await Game.findById(req.params.id);
+
   if (!foundGame) {
     res.status(400);
     throw new Error("Game not found");
@@ -55,7 +68,7 @@ const deleteGames = asyncHandler(async (req, res) => {
 
 module.exports = {
   getGames,
-  setGames,
-  updateGames,
+  createGame,
+  joinGame,
   deleteGames,
 };

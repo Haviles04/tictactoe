@@ -1,6 +1,9 @@
 const errorHandler = (err, req, res, next) => {
+  console.log(err);
+  console.log(err.message);
   const statusCode = res.statusCode ?? 500;
-  res.status(statusCode).send(err.message);
+  res.status(statusCode).json({ error: { message: err.message } });
+  next();
 };
 
 module.exports = {

@@ -3,6 +3,7 @@ import CreateGameDialog from "../components/CreateGameDialog";
 import { socket } from "../socket";
 import { useRecoilValue } from "recoil";
 import { userState } from "../state/userState";
+import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 
 function Home() {
@@ -21,15 +22,37 @@ function Home() {
     if (!user.id) {
       navigate("/login");
     }
+
     fetchGames();
+
     socket.on("newGame", () => fetchGames());
+    socket.on("gameJoined", () => fetchGames());
+
     return () => {
-      socket.off("newGame");
+      socket.removeAllListeners();
     };
   }, [user.id, navigate]);
 
-  const handleJoinGame = (id) => {
-    navigate(`/game/${id}`);
+  const handleJoinGame = async (id) => {
+    try {
+      const body = JSON.stringify({ p1: id });
+      const res = await fetch(`api/games/${id}`, {
+        headers: {
+          "Content-Type": "application/json",
+        },
+        method: "PUT",
+        body: body,
+      });
+
+      const game = await res.json();
+      if (game.error) {
+        throw new Error(game.error?.message);
+      }
+
+      navigate(`/game/${id}`);
+    } catch (err) {
+      toast.error(err.message);
+    }
   };
 
   return (
@@ -43,7 +66,13 @@ function Home() {
               className="flex items-center p-2 border-2 border-blue-200 rounded m-2 min-w-[250px] justify-between"
             >
               <p>{name}</p>
-              {p1 ? (
+              <button
+                className="bg-blue-300 rounded p-2"
+                onClick={() => handleJoinGame(_id)}
+              >
+                Join
+              </button>
+              {/* {p1 ? (
                 <p>2/2</p>
               ) : (
                 <>
@@ -55,7 +84,7 @@ function Home() {
                     Join
                   </button>
                 </>
-              )}
+              )} */}
             </li>
           ))}
         </ul>

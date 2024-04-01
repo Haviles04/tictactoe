@@ -1,8 +1,10 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 function CreateGameDialog({ setShowGameDialog, fetchGames, userId }) {
   const [gameName, setGameName] = useState("");
+  const navigate = useNavigate();
 
   const closeDialog = (e) => {
     e.preventDefault();
@@ -25,13 +27,11 @@ function CreateGameDialog({ setShowGameDialog, fetchGames, userId }) {
         method: "POST",
         body: body,
       });
-
-      if (!res.ok) {
-        console.log(res);
+      const game = await res.json();
+      if (!game._id) {
         throw new Error("Error Creating Game");
       }
-
-      fetchGames();
+      navigate(`/game/${game._id}`);
     } catch (err) {
       toast.error(err.message);
     } finally {

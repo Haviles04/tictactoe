@@ -1,8 +1,13 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const { getGames, setGames, updateGames, deleteGames } = require('../controllers/gameController');
+const {
+  getGames,
+  createGame,
+  joinGame,
+  deleteGames,
+} = require("../controllers/gameController");
 
-router.route('/').get(getGames).post(setGames);
-router.route('/:id').delete(deleteGames).put(updateGames)
+router.route("/").get(getGames).post(createGame);
+router.route("/:id").delete(deleteGames).put(joinGame);
 
 module.exports = router;
