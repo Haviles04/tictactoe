@@ -1,59 +1,57 @@
 import { useState, useEffect } from "react";
 import CreateGameDialog from "../components/CreateGameDialog";
 import { socket } from "../socket";
-import { useRecoilValue } from "recoil";
+import { useRecoilValue, useSetRecoilState } from "recoil";
 import { userState } from "../state/userState";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import { gameState } from "../state/gameState";
 
 function Home() {
   const [gameList, setGameList] = useState([]);
   const [showGameDialog, setShowGameDialog] = useState(false);
   const user = useRecoilValue(userState);
   const navigate = useNavigate();
+  const setGameState = useSetRecoilState(gameState);
 
   const fetchGames = async () => {
     socket.emit("getGames");
-    socket.on("gameList", (gameList) => {
-      setGameList(gameList);
+    socket.on("gameList", ({ data }) => {
+      setGameList(data);
     });
   };
 
   useEffect(() => {
-    // if (!user.id) {
-    //   navigate("/login");
-    // }
+    if (!user.id) {
+      navigate("/login");
+    }
 
     fetchGames();
 
-    socket.on("newGame", () => fetchGames());
-    socket.on("gameJoined", () => fetchGames());
+    socket.on("newGame", ({ data }) => setGameList((prev) => [...prev, data]));
+
+    socket.on("gameCreated", ({ data }) => {
+      setGameState(data);
+      if (data.p0 === user.id) {
+        navigate(`/game/${data.id}`);
+      }
+    });
+
+    socket.on("gameJoined", ({ data }) => {
+      navigate(`/game/${data.id}`);
+    });
+
+    socket.on("error", (err) => {
+      toast.error(err.message);
+    });
 
     return () => {
       socket.removeAllListeners();
     };
-  }, [user.id, navigate]);
+  }, [user.id, navigate, setGameState]);
 
   const handleJoinGame = async (id) => {
-    try {
-      const body = JSON.stringify({ p1: id });
-      const res = await fetch(`api/games/${id}`, {
-        headers: {
-          "Content-Type": "application/json",
-        },
-        method: "PUT",
-        body: body,
-      });
-
-      const game = await res.json();
-      if (game.error) {
-        throw new Error(game.error?.message);
-      }
-      socket.emit("join", id);
-      navigate(`/game/${id}`);
-    } catch (err) {
-      toast.error(err.message);
-    }
+    socket.emit("joinGame", { gameId: id, userId: user.id });
   };
 
   return (
@@ -67,11 +65,8 @@ function Home() {
               className="flex items-center p-2 border-2 border-blue-200 rounded m-2 min-w-[250px] justify-between"
             >
               <p>{name}</p>
-              {p1 ? (
-                <p>2/2</p>
-              ) : (
+              {!p1 && (
                 <>
-                  <p>1/2</p>
                   <button
                     className="bg-blue-300 rounded p-2"
                     onClick={() => handleJoinGame(_id)}
@@ -91,7 +86,6 @@ function Home() {
           <div className=" absolute h-dvh w-screen bg-black opacity-50"></div>
           <CreateGameDialog
             setShowGameDialog={setShowGameDialog}
-            fetchGames={fetchGames}
             userId={user.id}
           />
         </>
