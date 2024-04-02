@@ -30,24 +30,27 @@ const createGame = asyncHandler(async (req, res) => {
 // @route PUT /api/Games/id
 // @acess Private
 const joinGame = asyncHandler(async (req, res, next) => {
-  try {
-    const foundGame = await Game.findById(req.params.id);
-    if (!foundGame) {
-      res.status(400);
-      throw new Error("Game not found");
-    }
-
-    if (foundGame.p1) {
-      res.status(400);
-      throw new Error("Game already full");
-    }
-
-    req.app.get("io").emit("gameJoined");
-    const updatedGame = await Game.findByIdAndUpdate(req.params.id, req.body);
-    res.status(200).json(updatedGame);
-  } catch (err) {
-    next(err);
+  const foundGame = await Game.findById(req.params.id);
+  if (!foundGame) {
+    res.status(400);
+    throw new Error("Game not found");
   }
+
+  console.log(foundGame.p0._id);
+  console.log(req.body);
+
+  if (foundGame.p0._id === req.body.p1) {
+    throw new Error("Cannot join game you are already a part of");
+  }
+
+  if (foundGame.p1) {
+    res.status(400);
+    throw new Error("Game already full");
+  }
+
+  req.app.get("io").emit("gameJoined");
+  const updatedGame = await Game.findByIdAndUpdate(req.params.id, req.body);
+  res.status(200).json(updatedGame);
 });
 
 // @desc Delete Game
