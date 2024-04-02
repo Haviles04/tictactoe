@@ -5,7 +5,7 @@ const {
   createGame,
   joinGame,
   deleteGames,
-} = require("../controllers/gameController");
+} = require("../handlers/gameController");
 
 router.route("/").get(getGames).post(createGame);
 router.route("/:id").delete(deleteGames).put(joinGame);

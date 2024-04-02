@@ -13,15 +13,16 @@ function Home() {
   const navigate = useNavigate();
 
   const fetchGames = async () => {
-    const res = await fetch("api/games");
-    const games = await res.json();
-    setGameList(games);
+    socket.emit("getGames");
+    socket.on("gameList", (gameList) => {
+      setGameList(gameList);
+    });
   };
 
   useEffect(() => {
-    if (!user.id) {
-      navigate("/login");
-    }
+    // if (!user.id) {
+    //   navigate("/login");
+    // }
 
     fetchGames();
 
@@ -48,7 +49,7 @@ function Home() {
       if (game.error) {
         throw new Error(game.error?.message);
       }
-
+      socket.emit("join", id);
       navigate(`/game/${id}`);
     } catch (err) {
       toast.error(err.message);

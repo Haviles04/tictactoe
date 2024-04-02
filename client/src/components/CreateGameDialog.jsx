@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import { socket } from "../socket";
 
 function CreateGameDialog({ setShowGameDialog, fetchGames, userId }) {
   const [gameName, setGameName] = useState("");
@@ -19,19 +20,21 @@ function CreateGameDialog({ setShowGameDialog, fetchGames, userId }) {
     e.preventDefault();
 
     try {
-      const body = JSON.stringify({ name: gameName, p0: userId });
-      const res = await fetch("/api/games", {
-        headers: {
-          "Content-Type": "application/json",
-        },
-        method: "POST",
-        body: body,
-      });
-      const game = await res.json();
-      if (!game._id) {
-        throw new Error("Error Creating Game");
-      }
-      navigate(`/game/${game._id}`);
+      socket.emit("createGame", { name: gameName, p0: userId });
+      // const body = JSON.stringify({ name: gameName, p0: userId });
+      // const res = await fetch("/api/games", {
+      //   headers: {
+      //     "Content-Type": "application/json",
+      //   },
+      //   method: "POST",
+      //   body: body,
+      // });
+      // const game = await res.json();
+
+      // if (!game._id) {
+      //   throw new Error("Error Creating Game");
+      // }
+      // navigate(`/game/${game._id}`);
     } catch (err) {
       toast.error(err.message);
     } finally {
