@@ -25,9 +25,17 @@ module.exports = (io, socket) => {
         throw new Error("Error creating game");
       }
 
-      io.emit("newGame", { ok: true, data: newGame });
-      socket.emit("gameCreated", { ok: true, data: newGame });
-      socket.join(`${newGame._id}`);
+      const populatedGame = await newGame.populate("p0");
+
+      io.emit("newGame", { ok: true, data: populatedGame });
+
+      console.log(populatedGame._id);
+
+      socket.join(Number(populatedGame._id));
+      io.in(Number(populatedGame._id)).emit("gameCreated", {
+        ok: true,
+        data: populatedGame,
+      });
     } catch (err) {
       socket.emit("error", { ok: false, message: err.message });
     }
@@ -51,12 +59,21 @@ module.exports = (io, socket) => {
         throw new Error("Game already full");
       }
 
-      const updatedGame = await Game.findByIdAndUpdate(foundGame._id, {
-        p1: foundUser._id,
-      });
+      const updatedGame = await Game.findByIdAndUpdate(
+        foundGame._id,
+        {
+          p1: foundUser._id,
+        },
+        {
+          returnDocument: "after",
+        }
+      )
+        .populate("p0")
+        .populate("p1");
+      console.log(updatedGame._id);
 
-      socket.join(`${updatedGame._id}`);
-      io.to(`${updatedGame._id}`).emit("gameJoined", {
+      socket.join(Number(updatedGame._id));
+      io.in(Number(updatedGame._id)).emit("gameJoined", {
         ok: true,
         data: updatedGame,
       });

@@ -1,24 +1,19 @@
 import { useState, useEffect } from "react";
 import CreateGameDialog from "../components/CreateGameDialog";
 import { socket } from "../socket";
-import { useRecoilValue, useSetRecoilState } from "recoil";
+import { useRecoilValue } from "recoil";
 import { userState } from "../state/userState";
-import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-import { gameState } from "../state/gameState";
+import { gameListState } from "../state/gameListState";
 
 function Home() {
-  const [gameList, setGameList] = useState([]);
   const [showGameDialog, setShowGameDialog] = useState(false);
   const user = useRecoilValue(userState);
   const navigate = useNavigate();
-  const setGameState = useSetRecoilState(gameState);
+  const gameList = useRecoilValue(gameListState);
 
   const fetchGames = async () => {
     socket.emit("getGames");
-    socket.on("gameList", ({ data }) => {
-      setGameList(data);
-    });
   };
 
   useEffect(() => {
@@ -27,28 +22,7 @@ function Home() {
     }
 
     fetchGames();
-
-    socket.on("newGame", ({ data }) => setGameList((prev) => [...prev, data]));
-
-    socket.on("gameCreated", ({ data }) => {
-      setGameState(data);
-      if (data.p0 === user.id) {
-        navigate(`/game/${data.id}`);
-      }
-    });
-
-    socket.on("gameJoined", ({ data }) => {
-      navigate(`/game/${data.id}`);
-    });
-
-    socket.on("error", (err) => {
-      toast.error(err.message);
-    });
-
-    return () => {
-      socket.removeAllListeners();
-    };
-  }, [user.id, navigate, setGameState]);
+  }, [user.id, navigate]);
 
   const handleJoinGame = async (id) => {
     socket.emit("joinGame", { gameId: id, userId: user.id });

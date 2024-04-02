@@ -3,14 +3,16 @@ import { gameState } from "../state/gameState";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { socket } from "../socket";
 import { toast } from "react-toastify";
+import { useParams } from "react-router-dom";
+import Box from "../components/game/Box";
 
 function Game() {
   const game = useRecoilValue(gameState);
   const setGameState = useSetRecoilState(gameState);
+  const { gameId } = useParams();
 
   useEffect(() => {
     socket.on("gameJoined", ({ data }) => {
-      console.log("recieved");
       setGameState(data);
     });
 
@@ -21,12 +23,24 @@ function Game() {
     return () => {
       socket.removeAllListeners();
     };
-  }, [setGameState]);
+  }, [setGameState, gameId]);
+
+  const boxes = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
   return (
-    <div>
-      Game {game.name} {game.p1}
-    </div>
+    <main>
+      <div className="flex flex-col items-center mt-10">
+        <h1 className="text-3xl">Game {game.name}</h1>
+        <h2 className="text-2xl">
+          {game.p0.username} vs. {game.p1?.username}
+        </h2>
+        <div className="grid grid-cols-3 mt-10">
+          {boxes.map((num, i) => (
+            <Box key={num} value={num} />
+          ))}
+        </div>
+      </div>
+    </main>
   );
 }
 

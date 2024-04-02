@@ -5,8 +5,8 @@ export const gameState = atom({
   default: {
     _id: null,
     name: "",
-    p0: null,
-    p1: null,
+    p0: {},
+    p1: {},
     p0Boxes: [],
     p1Boxes: [],
   },
