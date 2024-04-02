@@ -36,9 +36,6 @@ const joinGame = asyncHandler(async (req, res, next) => {
     throw new Error("Game not found");
   }
 
-  console.log(foundGame.p0._id);
-  console.log(req.body);
-
   if (foundGame.p0._id === req.body.p1) {
     throw new Error("Cannot join game you are already a part of");
   }
