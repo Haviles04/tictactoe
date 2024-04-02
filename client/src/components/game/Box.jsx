@@ -1,20 +1,12 @@
 import { socket } from "../../socket";
-import { useState } from "react";
 
-function Box({ value, p0, p1, user }) {
-  const [displayChar, setDisplayChar] = useState("");
-
-  console.log(displayChar);
-
+function Box({ value, p0, p1, user, game }) {
   const handleClick = () => {
     if (user.username === p0.username) {
-      socket.emit("p0Move", value);
-      setDisplayChar("X");
+      socket.emit("p0Move", { box: value, gameId: game._id });
+      return;
     }
-    if (user.username === p1.username) {
-      socket.emit("p1Move", value);
-      setDisplayChar("O");
-    }
+    socket.emit("p1Move", { box: value, gameId: game._id });
   };
 
   return (
@@ -22,7 +14,13 @@ function Box({ value, p0, p1, user }) {
       className="p-4 border-2 border-black rounded min-h-[100px] min-w-[100px]"
       onClick={handleClick}
     >
-      <p className="text-2xl">{displayChar}</p>
+      <p className="text-2xl">
+        {game.p0Boxes?.includes(value)
+          ? "X"
+          : game.p1Boxes?.includes(value)
+          ? "O"
+          : value}
+      </p>
     </button>
   );
 }

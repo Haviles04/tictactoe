@@ -21,6 +21,9 @@ function Root() {
     socket.on("connect", () => {
       console.log("socket connected");
     });
+    socket.on("disconnet", () => {
+      console.log("socket disconnected");
+    });
 
     socket.on("gameList", ({ data }) => {
       setGameList(data);
@@ -40,6 +43,15 @@ function Root() {
       if (data.p1._id === user.id) {
         navigate(`/game/${data._id}`);
       }
+    });
+
+    socket.on("p0MoveComplete", ({ data }) => {
+      console.log(data);
+      setGameState(data);
+    });
+
+    socket.on("p0Win", ({ data }) => {
+      console.log("p0win");
     });
 
     socket.on("error", (err) => {

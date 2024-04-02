@@ -29,8 +29,6 @@ module.exports = (io, socket) => {
 
       io.emit("newGame", { ok: true, data: populatedGame });
 
-      console.log(populatedGame._id);
-
       socket.join(Number(populatedGame._id));
       io.in(Number(populatedGame._id)).emit("gameCreated", {
         ok: true,
@@ -70,7 +68,6 @@ module.exports = (io, socket) => {
       )
         .populate("p0")
         .populate("p1");
-      console.log(updatedGame._id);
 
       socket.join(Number(updatedGame._id));
       io.in(Number(updatedGame._id)).emit("gameJoined", {
@@ -82,7 +79,63 @@ module.exports = (io, socket) => {
     }
   };
 
+  const p0Move = async (payload) => {
+    pMove(payload, "p0");
+  };
+
+  const p1Move = async (payload) => {
+    pMove(payload, "p1");
+  };
+
+  const pMove = async (payload, key) => {
+    const { box, gameId } = payload;
+    const foundGame = await Game.findById(gameId);
+
+    const populatedGame = await Game.findByIdAndUpdate(
+      foundGame._id,
+      { [`${key}Boxes`]: [...foundGame.p0Boxes, box] },
+      {
+        returnDocument: "after",
+      }
+    )
+      .populate("p0")
+      .populate("p1");
+
+    io.in(Number(populatedGame._id)).emit("p0MoveComplete", {
+      ok: true,
+      data: populatedGame,
+    });
+
+    if (checkWinGame(populatedGame.p0Boxes)) {
+      io.in(Number(populatedGame._id)).emit(`${key}Wins`, {
+        ok: true,
+        data: populatedGame,
+      });
+    }
+  };
+
+  const checkWinGame = (arr) => {
+    const wins = [
+      [1, 2, 3],
+      [4, 5, 6],
+      [7, 8, 9],
+      [1, 5, 9],
+      [3, 5, 7],
+      [1, 4, 7],
+      [2, 5, 8],
+      [3, 6, 9],
+    ];
+
+    for (let win of wins) {
+      if (win.every((num) => arr.includes(num))) {
+        return true;
+      }
+    }
+  };
+
   socket.on("getGames", getGames);
   socket.on("createGame", createGame);
   socket.on("joinGame", joinGame);
+  socket.on("p0Move", p0Move);
+  socket.on("p1Move", p1Move);
 };

@@ -34,7 +34,7 @@ function Game() {
       <div className="flex flex-col items-center mt-10">
         <h1 className="text-3xl">Game {game.name}</h1>
         <h2 className="text-2xl">
-          {game.p0.username} vs. {game.p1?.username}
+          {game.p0?.username} vs. {game.p1?.username}
         </h2>
         <div className="grid grid-cols-3 mt-10">
           {boxes.map((num) => (
@@ -44,6 +44,7 @@ function Game() {
               p0={game.p0}
               p1={game.p1}
               user={user}
+              game={game}
             />
           ))}
         </div>
