@@ -1,12 +1,15 @@
 import { useState, useEffect } from "react";
 import CreateGameDialog from "../components/CreateGameDialog";
 import { socket } from "../socket";
-import { useRecoilValue } from "recoil";
 import { userState } from "../state/userState";
 import { useNavigate } from "react-router-dom";
 import { gameListState } from "../state/gameListState";
+import { useRecoilValue, useSetRecoilState } from "recoil";
+import { gameState } from "../state/gameState";
 
 function Home() {
+  const setGameList = useSetRecoilState(gameListState);
+  const setGameState = useSetRecoilState(gameState);
   const [showGameDialog, setShowGameDialog] = useState(false);
   const user = useRecoilValue(userState);
   const navigate = useNavigate();
@@ -16,13 +19,43 @@ function Home() {
     socket.emit("getGames");
   };
 
+  console.log(gameList);
   useEffect(() => {
     if (!user.id) {
       navigate("/login");
     }
 
     fetchGames();
-  }, [user.id, navigate]);
+
+    socket.on("gameList", ({ data }) => {
+      setGameList(data);
+    });
+
+    socket.on("newGame", ({ data }) => {
+      setGameList((prev) => [...prev, data]);
+    });
+
+    socket.on("gameCreated", ({ data }) => {
+      setGameState(data);
+      if (data.p0._id === user.id) {
+        navigate(`/game/${data._id}`);
+      }
+    });
+
+    socket.on("gameJoined", ({ data }) => {
+      setGameState(data);
+      if (data.p1._id === user.id) {
+        navigate(`/game/${data._id}`);
+      }
+    });
+
+    return () => {
+      socket.off("gameList");
+      socket.off("newGame");
+      socket.off("gameCreated");
+      socket.off("gameJoined");
+    };
+  }, [user.id, navigate, setGameList, setGameState]);
 
   const handleJoinGame = async (id) => {
     socket.emit("joinGame", { gameId: id, userId: user.id });

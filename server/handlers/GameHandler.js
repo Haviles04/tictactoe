@@ -4,7 +4,7 @@ const User = require("../models/userModel");
 module.exports = (io, socket) => {
   const getGames = async () => {
     try {
-      const games = await Game.find();
+      const games = await Game.find({ p1: null });
       socket.emit("gameList", { ok: true, data: games });
     } catch (err) {
       socket.emit("error", { ok: false, message: err.message });
@@ -88,29 +88,50 @@ module.exports = (io, socket) => {
   };
 
   const pMove = async (payload, key) => {
-    const { box, gameId } = payload;
-    const foundGame = await Game.findById(gameId);
+    try {
+      const { box, gameId } = payload;
+      const foundGame = await Game.findById(gameId);
 
-    const populatedGame = await Game.findByIdAndUpdate(
-      foundGame._id,
-      { [`${key}Boxes`]: [...foundGame.p0Boxes, box] },
-      {
-        returnDocument: "after",
+      const whosTurn = (foundGame.turn + 1) % 2 === 1 ? "p0" : "p1";
+      if (whosTurn !== key) {
+        throw new Error("Not your turn!");
       }
-    )
-      .populate("p0")
-      .populate("p1");
 
-    io.in(Number(populatedGame._id)).emit("p0MoveComplete", {
-      ok: true,
-      data: populatedGame,
-    });
+      const populatedGame = await Game.findByIdAndUpdate(
+        foundGame._id,
+        {
+          [`${key}Boxes`]: [...foundGame[`${key}Boxes`], box],
+          turn: foundGame.turn + 1,
+        },
+        {
+          returnDocument: "after",
+        }
+      )
+        .populate("p0")
+        .populate("p1");
 
-    if (checkWinGame(populatedGame.p0Boxes)) {
-      io.in(Number(populatedGame._id)).emit(`${key}Wins`, {
+      io.in(Number(populatedGame._id)).emit("pMoveComplete", {
         ok: true,
         data: populatedGame,
       });
+
+      if (checkWinGame(populatedGame[`${key}Boxes`])) {
+        io.in(Number(populatedGame._id)).emit(`${key}Win`, {
+          ok: true,
+        });
+      }
+
+      if (
+        !checkWinGame(populatedGame[`${key}Boxes`]) &&
+        populatedGame.turn === 9
+      ) {
+        console.log("stalemate!");
+        io.in(Number(populatedGame._id)).emit(`stalemate`, {
+          ok: true,
+        });
+      }
+    } catch (err) {
+      socket.emit("error", { ok: false, message: err.message });
     }
   };
 

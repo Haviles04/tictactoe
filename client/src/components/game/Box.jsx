@@ -19,7 +19,7 @@ function Box({ value, p0, p1, user, game }) {
           ? "X"
           : game.p1Boxes?.includes(value)
           ? "O"
-          : value}
+          : ""}
       </p>
     </button>
   );

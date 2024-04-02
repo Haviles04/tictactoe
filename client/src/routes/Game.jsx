@@ -1,13 +1,14 @@
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import { gameState } from "../state/gameState";
 import { userState } from "../state/userState";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { socket } from "../socket";
-import { toast } from "react-toastify";
 import { useParams } from "react-router-dom";
 import Box from "../components/game/Box";
+import GameOverDialog from "../components/game/GameOverDialog";
 
 function Game() {
+  const [winner, setWinner] = useState();
   const user = useRecoilValue(userState);
   const game = useRecoilValue(gameState);
   const setGameState = useSetRecoilState(gameState);
@@ -18,14 +19,27 @@ function Game() {
       setGameState(data);
     });
 
-    socket.on("error", (err) => {
-      toast.error(err.message);
+    socket.on("pMoveComplete", ({ data }) => {
+      setGameState(data);
+    });
+
+    socket.on("p0Win", ({ data }) => {
+      setWinner(game.p0?.username);
+    });
+    socket.on("p1Win", ({ data }) => {
+      setWinner(game.p1?.username);
+    });
+    socket.on("stalemate", ({ data }) => {
+      setWinner("stalemate");
     });
 
     return () => {
-      socket.removeAllListeners();
+      socket.off("gameJoined");
+      socket.off("p0moveComplete");
+      socket.off("p0Win");
+      socket.off("p1Win");
     };
-  }, [setGameState, gameId]);
+  }, [setGameState, gameId, game.p0?.username, game.p1?.username]);
 
   const boxes = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
@@ -36,7 +50,8 @@ function Game() {
         <h2 className="text-2xl">
           {game.p0?.username} vs. {game.p1?.username}
         </h2>
-        <div className="grid grid-cols-3 mt-10">
+        <div className="grid grid-cols-3 mt-10 p-2 relative">
+          {winner && <GameOverDialog winner={winner} />}
           {boxes.map((num) => (
             <Box
               key={`box ${num}`}

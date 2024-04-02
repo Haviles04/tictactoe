@@ -23,6 +23,10 @@ const gameSchema = mongoose.Schema(
       type: Array,
       default: [],
     },
+    turn: {
+      type: Number,
+      default: 0,
+    },
   },
   {
     timestamps: true,
