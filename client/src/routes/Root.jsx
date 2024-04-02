@@ -29,7 +29,6 @@ function Root() {
     socket.on("newGame", ({ data }) => setGameList((prev) => [...prev, data]));
 
     socket.on("gameCreated", ({ data }) => {
-      console.log(data);
       setGameState(data);
       if (data.p0._id === user.id) {
         navigate(`/game/${data._id}`);

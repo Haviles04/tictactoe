@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { gameState } from "../state/gameState";
+import { userState } from "../state/userState";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { socket } from "../socket";
 import { toast } from "react-toastify";
@@ -7,6 +8,7 @@ import { useParams } from "react-router-dom";
 import Box from "../components/game/Box";
 
 function Game() {
+  const user = useRecoilValue(userState);
   const game = useRecoilValue(gameState);
   const setGameState = useSetRecoilState(gameState);
   const { gameId } = useParams();
@@ -35,8 +37,14 @@ function Game() {
           {game.p0.username} vs. {game.p1?.username}
         </h2>
         <div className="grid grid-cols-3 mt-10">
-          {boxes.map((num, i) => (
-            <Box key={num} value={num} />
+          {boxes.map((num) => (
+            <Box
+              key={`box ${num}`}
+              value={num}
+              p0={game.p0}
+              p1={game.p1}
+              user={user}
+            />
           ))}
         </div>
       </div>
