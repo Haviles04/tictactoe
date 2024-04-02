@@ -66,13 +66,7 @@ function Home() {
               className="flex items-center p-2 border-2 border-blue-200 rounded m-2 min-w-[250px] justify-between"
             >
               <p>{name}</p>
-              <button
-                className="bg-blue-300 rounded p-2"
-                onClick={() => handleJoinGame(_id)}
-              >
-                Join
-              </button>
-              {/* {p1 ? (
+              {p1 ? (
                 <p>2/2</p>
               ) : (
                 <>
@@ -84,7 +78,7 @@ function Home() {
                     Join
                   </button>
                 </>
-              )} */}
+              )}
             </li>
           ))}
         </ul>
