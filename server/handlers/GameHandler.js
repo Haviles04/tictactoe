@@ -104,7 +104,7 @@ module.exports = (io, socket) => {
 
       const botTurn = whosTurn === "p1" && foundGame.bot;
 
-      const getBoxValue = () => {
+      const getBotBoxValue = () => {
         const number = Math.floor(Math.random() * 9) + 1;
         if (![...foundGame.p0Boxes, ...foundGame.p1Boxes].includes(number)) {
           return number;
@@ -112,7 +112,7 @@ module.exports = (io, socket) => {
         return getBoxValue();
       };
 
-      const boxValue = botTurn ? getBoxValue() : box;
+      const boxValue = botTurn ? getBotBoxValue() : box;
 
       const populatedGame = await Game.findByIdAndUpdate(
         foundGame._id,
