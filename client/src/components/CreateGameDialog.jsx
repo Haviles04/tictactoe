@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { socket } from "../socket";
 
-function CreateGameDialog({ setShowGameDialog, userId }) {
+function CreateGameDialog({ setShowGameDialog }) {
   const [gameName, setGameName] = useState("");
+  const [bot, setBot] = useState(false);
 
   const closeDialog = (e) => {
     e.preventDefault();
@@ -15,7 +16,7 @@ function CreateGameDialog({ setShowGameDialog, userId }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    socket.emit("createGame", { name: gameName, p0: socket.id });
+    socket.emit("createGame", { name: gameName, p0: socket.id, bot });
     setShowGameDialog(false);
   };
 
@@ -25,6 +26,15 @@ function CreateGameDialog({ setShowGameDialog, userId }) {
         className="flex bg-white flex-col p-10 rounded-xl"
         onSubmit={handleSubmit}
       >
+        <label htmlFor="botCheckbox">
+          Play against Ai?
+          <input
+            type="checkbox"
+            className="ml-2"
+            value={bot}
+            onChange={() => setBot(!bot)}
+          />
+        </label>
         <label htmlFor="gameName">Enter a Game Name</label>
         <input
           id="gameName"

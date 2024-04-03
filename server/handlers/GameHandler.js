@@ -1,5 +1,4 @@
 const Game = require("../models/gameModel");
-const User = require("../models/userModel");
 
 module.exports = (io, socket) => {
   const getGames = async () => {
@@ -9,6 +8,11 @@ module.exports = (io, socket) => {
     } catch (err) {
       socket.emit("error", { ok: false, message: err.message });
     }
+  };
+
+  const leaveGame = async (payload) => {
+    const { gameId } = payload;
+    socket.leave(gameId);
   };
 
   const createGame = async (payload) => {
@@ -29,8 +33,10 @@ module.exports = (io, socket) => {
 
       io.emit("newGame", { ok: true, data: populatedGame });
 
-      socket.join(Number(populatedGame._id));
-      io.in(Number(populatedGame._id)).emit("gameCreated", {
+      const idString = populatedGame._id.toString();
+
+      socket.join(idString);
+      io.in(idString).emit("gameCreated", {
         ok: true,
         data: populatedGame,
       });
@@ -64,8 +70,10 @@ module.exports = (io, socket) => {
         .populate("p0")
         .populate("p1");
 
-      socket.join(Number(updatedGame._id));
-      io.in(Number(updatedGame._id)).emit("gameJoined", {
+      const idString = updatedGame._id.toString();
+
+      socket.join(idString);
+      io.in(idString).emit("gameJoined", {
         ok: true,
         data: updatedGame,
       });
@@ -105,13 +113,15 @@ module.exports = (io, socket) => {
         .populate("p0")
         .populate("p1");
 
-      io.in(Number(populatedGame._id)).emit("pMoveComplete", {
+      const idString = populatedGame._id.toString();
+
+      io.in(idString).emit("pMoveComplete", {
         ok: true,
         data: populatedGame,
       });
 
       if (checkWinGame(populatedGame[`${key}Boxes`])) {
-        io.in(Number(populatedGame._id)).emit(`${key}Win`, {
+        io.in(idString).emit(`${key}Win`, {
           ok: true,
         });
       }
@@ -121,7 +131,7 @@ module.exports = (io, socket) => {
         populatedGame.turn === 9
       ) {
         console.log("stalemate!");
-        io.in(Number(populatedGame._id)).emit(`stalemate`, {
+        io.in(idString).emit(`stalemate`, {
           ok: true,
         });
       }
@@ -151,6 +161,7 @@ module.exports = (io, socket) => {
 
   socket.on("getGames", getGames);
   socket.on("createGame", createGame);
+  socket.on("leaveGame", leaveGame);
   socket.on("joinGame", joinGame);
   socket.on("p0Move", p0Move);
   socket.on("p1Move", p1Move);

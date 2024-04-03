@@ -1,35 +1,25 @@
-import { FiLogOut } from "react-icons/fi";
-import { Link, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useRecoilValue } from "recoil";
-import { userState } from "../state/userState";
+import { gameState } from "../state/gameState";
+import { socket } from "../socket";
 
 function Navbar() {
-  const user = useRecoilValue(userState);
+  const game = useRecoilValue(gameState);
   const navigate = useNavigate();
 
-  const handleLogout = (e) => {
-    navigate("/login");
+  const handleNav = () => {
+    if (game._id) {
+      socket.emit("leaveGame", { gameId: game._id });
+    }
+    navigate("/");
   };
 
   return (
     <nav className="w-full bg-blue-100 rounded-b-xl">
       <div className="flex flex-row justify-between items-center max-w-[1200px] m-auto p-4 ">
-        <Link to="/" className="text-2xl">
+        <button onClick={handleNav} className="text-2xl">
           Tic-Tac-Toe
-        </Link>
-        <ul>
-          <li>
-            {user.id && (
-              <button
-                onClick={handleLogout}
-                className="flex flex-row items-center rounded border border-black p-2"
-              >
-                <FiLogOut className="mr-2" />
-                Logout
-              </button>
-            )}
-          </li>
-        </ul>
+        </button>
       </div>
     </nav>
   );

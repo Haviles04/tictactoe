@@ -1,12 +1,13 @@
 import { useNavigate } from "react-router-dom";
 import { socket } from "../../socket";
 
-function GameOverDialog({ winner }) {
+function GameOverDialog({ winner, gameId }) {
   const navigate = useNavigate();
 
   const winningMessage = winner === socket.id ? "You Win!" : "You Lose!";
 
   const handleClick = () => {
+    socket.emit("leaveGame", { gameId });
     navigate("/");
   };
   return (

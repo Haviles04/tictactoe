@@ -49,7 +49,7 @@ function Game() {
         <h1 className="text-3xl">Game {game.name}</h1>
 
         {winner ? (
-          <GameOverDialog winner={winner} />
+          <GameOverDialog winner={winner} gameId={game._id} />
         ) : (
           <div className="grid grid-cols-3 mt-10 p-2 relative">
             {boxes.map((num) => (

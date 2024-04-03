@@ -20,10 +20,6 @@ function Home() {
   };
 
   useEffect(() => {
-    //   if (!user.id) {
-    //     navigate("/login");
-    //   }
-
     fetchGames();
 
     socket.on("gameList", ({ data }) => {
@@ -35,6 +31,7 @@ function Home() {
     });
 
     socket.on("gameCreated", ({ data }) => {
+      console.log("gameCreated");
       setGameState(data);
       if (data.p0 === socket.id) {
         navigate(`/game/${data._id}`);

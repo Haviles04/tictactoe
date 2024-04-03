@@ -4,23 +4,14 @@ const colors = require("colors");
 const connectDb = require("./config/db");
 const { createServer } = require("node:http");
 const port = process.env.PORT;
-const cors = require("cors");
 const app = express();
-const { errorHandler } = require("./middleware/errorMiddleware");
-const users = require("./routes/userRoutes");
 const registerGamesHandler = require("./handlers/GameHandler");
-
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
 
 connectDb();
 const onConnection = (socket) => {
   registerGamesHandler(io, socket);
 };
 
-app.use(cors());
-app.use("/api/users", users);
-app.use(errorHandler);
 const { Server } = require("socket.io");
 const server = createServer(app);
 
