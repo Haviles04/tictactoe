@@ -15,7 +15,7 @@ function Game() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!game.id) {
+    if (!game._id) {
       navigate("/");
     }
 
@@ -50,7 +50,7 @@ function Game() {
       socket.off("p0Win");
       socket.off("p1Win");
     };
-  }, [setGameState, gameId, game.p0, game.p1]);
+  }, [setGameState, gameId, game.p0, game.p1, game._id, navigate]);
 
   const boxes = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
