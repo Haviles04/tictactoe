@@ -4,6 +4,7 @@ import { useRecoilValue, useSetRecoilState } from "recoil";
 import { socket } from "../socket";
 import { useParams } from "react-router-dom";
 import Box from "../components/game/Box";
+import { useNavigate } from "react-router-dom";
 import GameOverDialog from "../components/game/GameOverDialog";
 
 function Game() {
@@ -11,8 +12,13 @@ function Game() {
   const game = useRecoilValue(gameState);
   const setGameState = useSetRecoilState(gameState);
   const { gameId } = useParams();
+  const navigate = useNavigate();
 
   useEffect(() => {
+    if (!game.id) {
+      navigate("/");
+    }
+
     socket.on("gameJoined", ({ data }) => {
       setGameState(data);
     });
