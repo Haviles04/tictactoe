@@ -4,10 +4,10 @@
 
 ## Start Server
 
-### NPM Start
+NPM Start
 
 ## Start Client
 
-### NPM run client
+NPM run client
 
 [Live Link](https://tictactoe-xelt.onrender.com/)
