@@ -30,6 +30,7 @@ function CreateGameDialog({ setShowGameDialog }) {
           Play against Ai?
           <input
             type="checkbox"
+            name="botCheckbox"
             className="ml-2"
             value={bot}
             onChange={() => setBot(!bot)}

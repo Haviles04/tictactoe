@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { gameState } from "../state/gameState";
-import { userState } from "../state/userState";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 import { socket } from "../socket";
 import { useParams } from "react-router-dom";
@@ -9,7 +8,6 @@ import GameOverDialog from "../components/game/GameOverDialog";
 
 function Game() {
   const [winner, setWinner] = useState();
-  const user = useRecoilValue(userState);
   const game = useRecoilValue(gameState);
   const setGameState = useSetRecoilState(gameState);
   const { gameId } = useParams();
@@ -65,7 +63,6 @@ function Game() {
                 value={num}
                 p0={game.p0}
                 p1={game.p1}
-                user={user}
                 game={game}
               />
             ))}

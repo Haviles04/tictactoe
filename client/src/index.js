@@ -6,7 +6,6 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import reportWebVitals from "./reportWebVitals";
 import Home from "./routes/Home";
 import Game from "./routes/Game";
-import Login from "./routes/Login";
 import Root from "./routes/Root";
 import Error from "./components/Error";
 
@@ -19,10 +18,6 @@ const router = createBrowserRouter([
       {
         path: "/",
         element: <Home />,
-      },
-      {
-        path: "/login",
-        element: <Login />,
       },
       {
         path: "/game/:gameId",

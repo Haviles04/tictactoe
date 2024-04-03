@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import CreateGameDialog from "../components/CreateGameDialog";
 import { socket } from "../socket";
-import { userState } from "../state/userState";
 import { useNavigate } from "react-router-dom";
 import { gameListState } from "../state/gameListState";
 import { useRecoilValue, useSetRecoilState } from "recoil";
@@ -11,7 +10,6 @@ function Home() {
   const setGameList = useSetRecoilState(gameListState);
   const setGameState = useSetRecoilState(gameState);
   const [showGameDialog, setShowGameDialog] = useState(false);
-  const user = useRecoilValue(userState);
   const navigate = useNavigate();
   const gameList = useRecoilValue(gameListState);
 
@@ -86,10 +84,7 @@ function Home() {
       {showGameDialog && (
         <>
           <div className=" absolute h-dvh w-screen bg-black opacity-50"></div>
-          <CreateGameDialog
-            setShowGameDialog={setShowGameDialog}
-            userId={user.id}
-          />
+          <CreateGameDialog setShowGameDialog={setShowGameDialog} />
         </>
       )}
       <button
