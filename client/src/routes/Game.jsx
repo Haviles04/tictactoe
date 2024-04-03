@@ -21,6 +21,13 @@ function Game() {
 
     socket.on("pMoveComplete", ({ data }) => {
       setGameState(data);
+      if (data.bot) {
+        socket.volatile.emit("p1Move", { box: null, gameId: data._id });
+      }
+    });
+
+    socket.on("botMove", ({ data }) => {
+      setGameState(data);
     });
 
     socket.on("p0Win", ({ data }) => {

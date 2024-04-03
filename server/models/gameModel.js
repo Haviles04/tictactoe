@@ -26,6 +26,10 @@ const gameSchema = mongoose.Schema(
       type: Number,
       default: 0,
     },
+    bot: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,

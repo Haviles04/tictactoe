@@ -17,13 +17,15 @@ module.exports = (io, socket) => {
 
   const createGame = async (payload) => {
     try {
-      const { name, p0 } = payload;
+      const { name, p0, bot } = payload;
 
       if (!name) {
         throw new Error("Missing Game Name");
       }
 
-      const newGame = await Game.create({ name, p0 });
+      const p1 = bot ? "bot" : null;
+
+      const newGame = await Game.create({ name, p0, p1, bot });
 
       if (!newGame._id) {
         throw new Error("Error creating game");
@@ -100,10 +102,22 @@ module.exports = (io, socket) => {
         throw new Error("Not your turn!");
       }
 
+      const botTurn = whosTurn === "p1" && foundGame.bot;
+
+      const getBoxValue = () => {
+        const number = Math.floor(Math.random() * 9) + 1;
+        if (![...foundGame.p0Boxes, ...foundGame.p1Boxes].includes(number)) {
+          return number;
+        }
+        return getBoxValue();
+      };
+
+      const boxValue = botTurn ? getBoxValue() : box;
+
       const populatedGame = await Game.findByIdAndUpdate(
         foundGame._id,
         {
-          [`${key}Boxes`]: [...foundGame[`${key}Boxes`], box],
+          [`${key}Boxes`]: [...foundGame[`${key}Boxes`], boxValue],
           turn: foundGame.turn + 1,
         },
         {
@@ -115,24 +129,32 @@ module.exports = (io, socket) => {
 
       const idString = populatedGame._id.toString();
 
-      io.in(idString).emit("pMoveComplete", {
-        ok: true,
-        data: populatedGame,
-      });
-
       if (checkWinGame(populatedGame[`${key}Boxes`])) {
         io.in(idString).emit(`${key}Win`, {
           ok: true,
         });
+        return;
       }
 
       if (
         !checkWinGame(populatedGame[`${key}Boxes`]) &&
         populatedGame.turn === 9
       ) {
-        console.log("stalemate!");
         io.in(idString).emit(`stalemate`, {
           ok: true,
+        });
+        return;
+      }
+
+      if (botTurn) {
+        io.in(idString).emit("botMove", {
+          ok: true,
+          data: populatedGame,
+        });
+      } else {
+        io.in(idString).emit("pMoveComplete", {
+          ok: true,
+          data: populatedGame,
         });
       }
     } catch (err) {
