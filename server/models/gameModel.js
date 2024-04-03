@@ -7,13 +7,12 @@ const gameSchema = mongoose.Schema(
       required: [true, "Please enter a name"],
     },
     p0: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: String,
       required: true,
-      ref: "User",
+      default: "",
     },
     p1: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
+      type: String,
     },
     p0Boxes: {
       type: Array,

@@ -24,10 +24,10 @@ function Game() {
     });
 
     socket.on("p0Win", ({ data }) => {
-      setWinner(game.p0?.username);
+      setWinner(game.p0);
     });
     socket.on("p1Win", ({ data }) => {
-      setWinner(game.p1?.username);
+      setWinner(game.p1);
     });
     socket.on("stalemate", ({ data }) => {
       setWinner("stalemate");
@@ -39,7 +39,7 @@ function Game() {
       socket.off("p0Win");
       socket.off("p1Win");
     };
-  }, [setGameState, gameId, game.p0?.username, game.p1?.username]);
+  }, [setGameState, gameId, game.p0, game.p1]);
 
   const boxes = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
@@ -47,22 +47,23 @@ function Game() {
     <main>
       <div className="flex flex-col items-center mt-10">
         <h1 className="text-3xl">Game {game.name}</h1>
-        <h2 className="text-2xl">
-          {game.p0?.username} vs. {game.p1?.username}
-        </h2>
-        <div className="grid grid-cols-3 mt-10 p-2 relative">
-          {winner && <GameOverDialog winner={winner} />}
-          {boxes.map((num) => (
-            <Box
-              key={`box ${num}`}
-              value={num}
-              p0={game.p0}
-              p1={game.p1}
-              user={user}
-              game={game}
-            />
-          ))}
-        </div>
+
+        {winner ? (
+          <GameOverDialog winner={winner} />
+        ) : (
+          <div className="grid grid-cols-3 mt-10 p-2 relative">
+            {boxes.map((num) => (
+              <Box
+                key={`box ${num}`}
+                value={num}
+                p0={game.p0}
+                p1={game.p1}
+                user={user}
+                game={game}
+              />
+            ))}
+          </div>
+        )}
       </div>
     </main>
   );

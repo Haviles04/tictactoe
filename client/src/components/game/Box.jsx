@@ -2,7 +2,7 @@ import { socket } from "../../socket";
 
 function Box({ value, p0, p1, user, game }) {
   const handleClick = () => {
-    if (user.username === p0.username) {
+    if (game.p0 === socket.id) {
       socket.emit("p0Move", { box: value, gameId: game._id });
       return;
     }

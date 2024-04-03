@@ -19,11 +19,10 @@ function Home() {
     socket.emit("getGames");
   };
 
-  console.log(gameList);
   useEffect(() => {
-    if (!user.id) {
-      navigate("/login");
-    }
+    //   if (!user.id) {
+    //     navigate("/login");
+    //   }
 
     fetchGames();
 
@@ -37,14 +36,14 @@ function Home() {
 
     socket.on("gameCreated", ({ data }) => {
       setGameState(data);
-      if (data.p0._id === user.id) {
+      if (data.p0 === socket.id) {
         navigate(`/game/${data._id}`);
       }
     });
 
     socket.on("gameJoined", ({ data }) => {
       setGameState(data);
-      if (data.p1._id === user.id) {
+      if (data.p1 === socket.id) {
         navigate(`/game/${data._id}`);
       }
     });
@@ -55,10 +54,10 @@ function Home() {
       socket.off("gameCreated");
       socket.off("gameJoined");
     };
-  }, [user.id, navigate, setGameList, setGameState]);
+  }, [navigate, setGameList, setGameState]);
 
   const handleJoinGame = async (id) => {
-    socket.emit("joinGame", { gameId: id, userId: user.id });
+    socket.emit("joinGame", { gameId: id, userId: socket.id });
   };
 
   return (

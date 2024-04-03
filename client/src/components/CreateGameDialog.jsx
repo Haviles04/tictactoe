@@ -15,7 +15,7 @@ function CreateGameDialog({ setShowGameDialog, userId }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    socket.emit("createGame", { name: gameName, p0: userId });
+    socket.emit("createGame", { name: gameName, p0: socket.id });
     setShowGameDialog(false);
   };
 

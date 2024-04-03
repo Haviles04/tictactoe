@@ -43,14 +43,9 @@ module.exports = (io, socket) => {
     try {
       const { gameId, userId } = payload;
       const foundGame = await Game.findById(gameId);
-      const foundUser = await User.findById(userId);
 
-      if (!foundGame || !foundUser) {
+      if (!foundGame || !userId) {
         throw new Error("Error joining game");
-      }
-
-      if (foundGame.p0._id === foundUser._id) {
-        throw new Error("Cannot join game you are already a part of");
       }
 
       if (foundGame.p1) {
@@ -60,7 +55,7 @@ module.exports = (io, socket) => {
       const updatedGame = await Game.findByIdAndUpdate(
         foundGame._id,
         {
-          p1: foundUser._id,
+          p1: userId,
         },
         {
           returnDocument: "after",
