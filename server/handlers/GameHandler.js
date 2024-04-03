@@ -109,7 +109,7 @@ module.exports = (io, socket) => {
         if (![...foundGame.p0Boxes, ...foundGame.p1Boxes].includes(number)) {
           return number;
         }
-        return getBoxValue();
+        return getBotBoxValue();
       };
 
       const boxValue = botTurn ? getBotBoxValue() : box;

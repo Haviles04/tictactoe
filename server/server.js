@@ -1,4 +1,5 @@
 require("dotenv").config();
+const path = require("path");
 const express = require("express");
 const colors = require("colors");
 const connectDb = require("./config/db");
@@ -20,6 +21,16 @@ const io = new Server(server, {
     origin: "http://localhost:3000",
   },
 });
+
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "../client/build")));
+
+  app.get("*", (req, res) =>
+    res.sendFile(
+      path.resolve(__dirname, "../", "client", "build", "index.html")
+    )
+  );
+}
 
 io.sockets.on("connection", onConnection);
 
